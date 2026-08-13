@@ -156,4 +156,4 @@ rm -rf ~/.config/salah-app ~/.cache/salah-app   # also removes your settings
 
 ## License
 
-MIT — do whatever you like with it.
+MIT — Done by Zadwen

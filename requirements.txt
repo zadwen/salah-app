@@ -1,0 +1,11 @@
+# Salah app deliberately uses only the Python standard library for
+# networking (urllib) to stay lightweight. The only real dependency
+# is PyGObject, which should be installed via your distro's package
+# manager (see install.sh / README.md) rather than pip, since it
+# needs to be linked against your system's GTK3 and libnotify.
+#
+# If you really want to install PyGObject via pip inside a venv, you
+# still need the system dev headers first (e.g. libgirepository1.0-dev,
+# libcairo2-dev, pkg-config, python3-dev, gir1.2-gtk-3.0):
+#
+# PyGObject>=3.42

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Salah
+Comment=Islamic prayer times, reminders, Qibla and Hijri date
+Exec=salah-app
+Icon=salah-app
+Terminal=false
+Categories=Utility;Religion;
+X-GNOME-UsesNotifications=true

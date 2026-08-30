@@ -1,4 +1,9 @@
-# Salah — Islamic Prayer Times for Linux
+# Salah — Islamic Prayer Times for Linux (+ Windows)
+
+> **Windows users:** see [`windows/README.md`](windows/README.md) for a
+> native Tkinter build with a full dashboard window, system tray icon,
+> a mute button, and per-prayer manual time adjustment. Everything
+> below describes the original Linux/GTK version.
 
 A lightweight, native system-tray app that shows all five daily prayer
 times, reminds you before each one, and always displays the next
@@ -21,6 +26,12 @@ and most other Linux desktops — no Electron, no heavy runtime.
   RTL-friendly Arabic prayer names and countdown strings).
 - **Configurable calculation method**: ISNA, MWL, Umm al-Qura, Egyptian,
   Karachi, and more (Aladhan method IDs).
+- **Manual time adjustment**: nudge any individual prayer time by
+  +/- minutes in Settings, to match your local mosque's iqama if the
+  calculated time is a little off.
+- **Mute button**: instantly silence notification sound (from the tray
+  menu) without turning off notifications themselves — you still see
+  that a prayer time arrived, it's just silent.
 - **Lightweight**: pure Python stdlib for networking (`urllib`, no
   `requests`/pip dependency), a single background thread, GLib timers
   instead of busy loops, and daily on-disk caching so it only calls

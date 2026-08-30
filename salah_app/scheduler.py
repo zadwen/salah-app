@@ -58,15 +58,29 @@ def format_countdown(delta: datetime.timedelta, lang="en"):
     return f"{minutes}m"
 
 
-def load_day_plan(lat, lon, method, date=None, use_cache=True):
+def apply_adjustments(plan, adjustments):
+    """Shift each prayer's computed time by a manual minute offset the
+    user has set in Settings (e.g. +3 for Maghrib to match the local
+    mosque's iqama). adjustments is a dict like {"Fajr": -2, ...};
+    missing/zero entries are left untouched. Mutates and returns plan."""
+    if not adjustments:
+        return plan
+    for name, minutes in adjustments.items():
+        if name in plan.times and minutes:
+            plan.times[name] += datetime.timedelta(minutes=int(minutes))
+    return plan
+
+
+def load_day_plan(lat, lon, method, date=None, use_cache=True, adjustments=None):
     data = api.get_timings(lat, lon, method=method, date=date, use_cache=use_cache)
     plan = DayPlan(data["timings"], base_date=date or datetime.date.today())
     plan.hijri = data.get("hijri")
     plan.gregorian = data.get("gregorian")
+    apply_adjustments(plan, adjustments)
     return plan
 
 
-def load_day_plan_by_city(city, country, method, date=None, use_cache=True):
+def load_day_plan_by_city(city, country, method, date=None, use_cache=True, adjustments=None):
     """Same as load_day_plan but resolves the location by city/country
     name via Aladhan directly, without needing lat/lon. The response
     also carries back the resolved lat/lon (used for the Qibla
@@ -77,4 +91,5 @@ def load_day_plan_by_city(city, country, method, date=None, use_cache=True):
     plan.gregorian = data.get("gregorian")
     plan.lat = data.get("lat")
     plan.lon = data.get("lon")
+    apply_adjustments(plan, adjustments)
     return plan

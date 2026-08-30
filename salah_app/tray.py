@@ -107,6 +107,13 @@ class SalahApp:
 
         self.menu.append(Gtk.SeparatorMenuItem())
 
+        self.mute_item = Gtk.CheckMenuItem(label=t("mute_sound", self.lang()))
+        self.mute_item.set_active(self.cfg.get("muted", False))
+        self.mute_item.connect("toggled", self._on_mute_toggled)
+        self.menu.append(self.mute_item)
+
+        self.menu.append(Gtk.SeparatorMenuItem())
+
         refresh_item = Gtk.MenuItem(label=t("refresh", self.lang()))
         refresh_item.connect("activate", lambda _w: self._resolve_location_async())
         self.menu.append(refresh_item)
@@ -133,12 +140,14 @@ class SalahApp:
             method = self.cfg.get("method", 2)
             plan = None
 
+            adjustments = self.cfg.get("adjustments")
+
             if loc.get("auto", True):
                 # Auto mode: detect via IP, then fetch by lat/lon.
                 try:
                     detected = api.detect_location_by_ip()
                     self.qibla_bearing = bearing_to_kaaba(detected["lat"], detected["lon"])
-                    plan = load_day_plan(detected["lat"], detected["lon"], method)
+                    plan = load_day_plan(detected["lat"], detected["lon"], method, adjustments=adjustments)
                 except api.ApiError as e:
                     self._log_error(f"Auto-location failed: {e}")
                     GLib.idle_add(self._show_error, str(e))
@@ -151,9 +160,9 @@ class SalahApp:
                 try:
                     if lat is not None and lon is not None:
                         self.qibla_bearing = bearing_to_kaaba(lat, lon)
-                        plan = load_day_plan(lat, lon, method)
+                        plan = load_day_plan(lat, lon, method, adjustments=adjustments)
                     elif city and country:
-                        plan = load_day_plan_by_city(city, country, method)
+                        plan = load_day_plan_by_city(city, country, method, adjustments=adjustments)
                         if plan.lat is not None and plan.lon is not None:
                             self.qibla_bearing = bearing_to_kaaba(plan.lat, plan.lon)
                     else:
@@ -275,10 +284,16 @@ class SalahApp:
 
     def _fire_notification(self, title, body, urgency="normal"):
         notifier.notify(title, body, urgency=urgency)
-        if self.cfg.get("sound_enabled", True):
+        # Muting only skips the sound -- the visual notification still
+        # appears, so the user doesn't miss that a prayer time arrived.
+        if self.cfg.get("sound_enabled", True) and not self.cfg.get("muted", False):
             sound_file = self.cfg.get("sound_file") or DEFAULT_SOUND
             if sound_file and os.path.exists(sound_file):
                 notifier.play_sound(sound_file)
+
+    def _on_mute_toggled(self, item):
+        self.cfg["muted"] = item.get_active()
+        cfgmod.save_config(self.cfg)
 
     # ------------------------------------------------------------- menu
     def _on_show_qibla(self, _widget):

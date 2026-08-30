@@ -1,0 +1,13 @@
+# Windows build dependencies.
+# tkinter ships with the standard python.org Windows installer already
+# (no pip package needed) -- if "import tkinter" fails, reinstall Python
+# and make sure "tcl/tk and IDLE" is checked in the installer.
+
+Pillow>=10.0          # tray/app icon generation
+pystray>=0.19          # system tray icon + menu
+
+# Optional, best-effort only -- the app works fine without either:
+plyer>=2.1              # bonus native Windows toast (falls back silently if missing)
+playsound>=1.3.0        # lets "Choose Sound File" accept .mp3/.ogg, not just .wav
+
+pyinstaller>=6.0        # only needed to build the standalone .exe yourself

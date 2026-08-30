@@ -3,7 +3,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # noqa: E402
 
-from .constants import CALCULATION_METHODS
+from .constants import CALCULATION_METHODS, PRAYER_ORDER
 from .i18n import t
 
 
@@ -94,6 +94,30 @@ class SettingsDialog(Gtk.Dialog):
         grid.attach(hint, 0, row, 2, 1)
         row += 1
 
+        # Manual time adjustment section -- lets the user nudge each
+        # computed prayer time by +/- minutes to match their local
+        # mosque, since the raw Aladhan calculation is sometimes a
+        # few minutes off from what's actually announced locally.
+        grid.attach(Gtk.Separator(), 0, row, 2, 1)
+        row += 1
+        grid.attach(Gtk.Label(label=f"<b>{t('manual_adjustments', lang)}</b>", use_markup=True, xalign=0), 0, row, 2, 1)
+        row += 1
+        adj_hint = Gtk.Label(label=t("manual_adjustments_hint", lang), xalign=0)
+        adj_hint.set_line_wrap(True)
+        adj_hint.get_style_context().add_class("dim-label")
+        grid.attach(adj_hint, 0, row, 2, 1)
+        row += 1
+
+        self.adjustment_spins = {}
+        adjustments = cfg.get("adjustments", {})
+        for name in PRAYER_ORDER:
+            grid.attach(Gtk.Label(label=t(name, lang), xalign=0), 0, row, 1, 1)
+            adj = Gtk.Adjustment(value=adjustments.get(name, 0), lower=-60, upper=60, step_increment=1)
+            spin = Gtk.SpinButton(adjustment=adj, climb_rate=1, digits=0)
+            grid.attach(spin, 1, row, 1, 1)
+            self.adjustment_spins[name] = spin
+            row += 1
+
         # Reminders section
         grid.attach(Gtk.Separator(), 0, row, 2, 1)
         row += 1
@@ -133,6 +157,11 @@ class SettingsDialog(Gtk.Dialog):
         grid.attach(self.sound_button, 0, row, 2, 1)
         row += 1
 
+        self.mute_check = Gtk.CheckButton(label=t("mute_sound", lang))
+        self.mute_check.set_active(cfg.get("muted", False))
+        grid.attach(self.mute_check, 0, row, 2, 1)
+        row += 1
+
         self._on_auto_toggled(self.auto_loc_check)
         self.show_all()
 
@@ -168,6 +197,7 @@ class SettingsDialog(Gtk.Dialog):
         cfg = dict(self.cfg)
         cfg["language"] = self.lang_combo.get_active_id() or "en"
         cfg["method"] = int(self.method_combo.get_active_id() or 2)
+        cfg["adjustments"] = {name: int(spin.get_value()) for name, spin in self.adjustment_spins.items()}
 
         auto = self.auto_loc_check.get_active()
         loc = dict(cfg["location"])
@@ -192,4 +222,5 @@ class SettingsDialog(Gtk.Dialog):
         cfg["notify_at_prayer_time"] = self.notify_at_time_check.get_active()
         cfg["sound_enabled"] = self.sound_check.get_active()
         cfg["sound_file"] = self.sound_file
+        cfg["muted"] = self.mute_check.get_active()
         return cfg

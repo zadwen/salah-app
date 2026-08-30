@@ -43,6 +43,12 @@ STRINGS = {
         "qibla_window_title": "Qibla Direction",
         "qibla_bearing_label": "Bearing to Kaaba: {deg}° from North",
         "compass_note": "Point the top of your phone/compass toward this angle",
+        "manual_adjustments": "Manual Time Adjustment",
+        "manual_adjustments_hint": "Fine-tune each prayer time in minutes to match your local mosque (e.g. +3 for Maghrib).",
+        "mute": "Mute",
+        "unmute": "Unmute",
+        "mute_sound": "Mute notification sound",
+        "muted_hint": "Notifications still appear, they'll just be silent.",
     },
     "ar": {
         "Fajr": "الفجر",
@@ -86,6 +92,12 @@ STRINGS = {
         "qibla_window_title": "اتجاه القبلة",
         "qibla_bearing_label": "اتجاه الكعبة: {deg}° من الشمال",
         "compass_note": "وجّه أعلى هاتفك أو البوصلة نحو هذه الزاوية",
+        "manual_adjustments": "تعديل الوقت يدويًا",
+        "manual_adjustments_hint": "اضبط كل وقت صلاة بالدقائق ليطابق مسجدك المحلي (مثلاً +3 للمغرب).",
+        "mute": "كتم الصوت",
+        "unmute": "إلغاء الكتم",
+        "mute_sound": "كتم صوت الإشعارات",
+        "muted_hint": "ستظهر الإشعارات كما هي، لكن دون صوت.",
     },
 }
 

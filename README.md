@@ -30,7 +30,9 @@ and most other Linux desktops — no Electron, no heavy runtime.
   +/- minutes in Settings, to match your local mosque's iqama if the
   calculated time is a little off.
 - **Mute button**: instantly silence notification sound (from the tray
-  menu) without turning off notifications themselves — you still see
+  menu) — including a sound already playing when you hit it, not just
+  future ones. Closing a notification popup stops its sound too.
+  Muting never turns off notifications themselves — you still see
   that a prayer time arrived, it's just silent.
 - **Lightweight**: pure Python stdlib for networking (`urllib`, no
   `requests`/pip dependency), a single background thread, GLib timers

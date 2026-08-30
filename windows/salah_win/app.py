@@ -160,6 +160,7 @@ class SalahWinApp(tk.Tk):
         self.focus_force()
 
     def quit_app(self, *_args):
+        notifier_win.stop_sound()
         try:
             self.tray.stop()
         except Exception:
@@ -172,6 +173,11 @@ class SalahWinApp(tk.Tk):
         cfgmod.save_config(self.cfg)
         self.mute_btn.set_text(self._mute_label())
         self.tray.refresh_menu()
+        if self.cfg["muted"]:
+            # Cuts off a sound that's already mid-playback, not just
+            # future ones -- this is the fix for sound lingering with
+            # no way to stop it.
+            notifier_win.stop_sound()
 
     # ---------------------------------------------------- location + data
     def refresh(self, initial=False, manual=False):
@@ -310,12 +316,13 @@ class SalahWinApp(tk.Tk):
                     )
 
     def _fire_notification(self, title, body, urgent=False):
-        notifier_win.notify(self, title, body, dark_mode=self.dark_mode, urgent=urgent)
-        # Muting only skips the sound; the banner still shows, so the
-        # user never silently misses that a prayer time arrived.
-        if self.cfg.get("sound_enabled", True) and not self.cfg.get("muted", False):
-            sound_file = self.cfg.get("sound_file") or DEFAULT_SOUND
-            notifier_win.play_sound(sound_file)
+        muted = self.cfg.get("muted", False)
+        sound_enabled = self.cfg.get("sound_enabled", True) and not muted
+        sound_file = (self.cfg.get("sound_file") or DEFAULT_SOUND) if sound_enabled else None
+        # Sound is passed into notify() so it's tied to the banner's
+        # lifecycle (stops when the banner closes/times out) instead of
+        # firing independently with no way to interrupt it later.
+        notifier_win.notify(self, title, body, dark_mode=self.dark_mode, urgent=urgent, sound_file=sound_file)
 
     # ------------------------------------------------------------- menu
     def _on_show_qibla(self):

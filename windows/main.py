@@ -23,7 +23,10 @@ def main():
         print("This build targets Windows. On Linux/Mac, run the original "
               "`python3 main.py` from the repo root instead (GTK tray version).")
     from salah_win.app import SalahWinApp
+    start_minimized = "--minimized" in sys.argv
     app = SalahWinApp()
+    if start_minimized:
+        app.withdraw()
     app.mainloop()
 
 

@@ -283,17 +283,23 @@ class SalahApp:
                     )
 
     def _fire_notification(self, title, body, urgency="normal"):
-        notifier.notify(title, body, urgency=urgency)
-        # Muting only skips the sound -- the visual notification still
-        # appears, so the user doesn't miss that a prayer time arrived.
-        if self.cfg.get("sound_enabled", True) and not self.cfg.get("muted", False):
-            sound_file = self.cfg.get("sound_file") or DEFAULT_SOUND
-            if sound_file and os.path.exists(sound_file):
-                notifier.play_sound(sound_file)
+        muted = self.cfg.get("muted", False)
+        sound_enabled = self.cfg.get("sound_enabled", True) and not muted
+        sound_file = self.cfg.get("sound_file") or DEFAULT_SOUND
+        sound_file = sound_file if (sound_enabled and sound_file and os.path.exists(sound_file)) else None
+        # Sound is passed into notify() so it's tied to the popup's
+        # lifecycle -- it gets stopped automatically when the
+        # notification closes, instead of running on with nothing left
+        # on screen to silence it.
+        notifier.notify(title, body, urgency=urgency, sound_file=sound_file)
 
     def _on_mute_toggled(self, item):
         self.cfg["muted"] = item.get_active()
         cfgmod.save_config(self.cfg)
+        if self.cfg["muted"]:
+            # Cuts off a sound that's already mid-playback, not just
+            # future ones.
+            notifier.stop_sound()
 
     # ------------------------------------------------------------- menu
     def _on_show_qibla(self, _widget):

@@ -49,6 +49,9 @@ STRINGS = {
         "unmute": "Unmute",
         "mute_sound": "Mute notification sound",
         "muted_hint": "Notifications still appear, they'll just be silent.",
+        "run_at_startup": "Run when Windows starts",
+        "run_at_startup_hint": "Launches minimized to the tray automatically when you log in.",
+        "startup_failed": "Couldn't update the startup setting (registry access denied).",
     },
     "ar": {
         "Fajr": "الفجر",
@@ -98,6 +101,9 @@ STRINGS = {
         "unmute": "إلغاء الكتم",
         "mute_sound": "كتم صوت الإشعارات",
         "muted_hint": "ستظهر الإشعارات كما هي، لكن دون صوت.",
+        "run_at_startup": "التشغيل عند بدء ويندوز",
+        "run_at_startup_hint": "يبدأ التطبيق مصغّرًا في شريط النظام تلقائيًا عند تسجيل الدخول.",
+        "startup_failed": "تعذر تحديث إعداد بدء التشغيل (تم رفض الوصول إلى السجل).",
     },
 }
 

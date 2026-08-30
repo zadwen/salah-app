@@ -14,9 +14,15 @@ so this is a separate UI layer (Tkinter + a system tray icon via
   mosque's iqama time if the raw Aladhan calculation is a few minutes
   off. This was missing before — there was genuinely no field for it.
 - **Mute button.** A speaker icon in the top bar and in the tray menu
-  mutes notification sound instantly. Muting never hides the
-  notification itself — you still see it, it's just silent — so you
-  never miss that a prayer time arrived.
+  mutes notification sound instantly — including a sound that's
+  already playing when you hit it, not just future ones. Every
+  notification banner also has an "✕" to close it on demand, which
+  stops its sound too. Muting never hides the notification itself —
+  you still see it, it's just silent.
+- **Run at Windows startup.** A toggle in Settings adds the app to
+  your per-user login items (registry Run key, no admin rights
+  needed). When launched this way it starts minimized straight to the
+  tray instead of popping the window open.
 - **Full dashboard window**, not just a tray dropdown: a live
   countdown to the next prayer, a 6-card grid for today's times with
   the upcoming one highlighted, Hijri date, and a Qibla compass.
@@ -48,25 +54,56 @@ pyinstaller build/salah-win.spec --distpath dist --workpath build/_work
 This produces `windows/dist/salah.exe` — a single windowed executable,
 no console flash, no Python install required on the machine that runs it.
 
-A GitHub Actions workflow (`.github/workflows/build-windows.yml`) also
-builds this automatically on every push to `windows/` or `salah_app/`,
-and uploads `salah.exe` as a downloadable artifact — same pattern as
-the FocusLock auto-build.
+## Publishing an easy download for other people
+
+A GitHub Actions workflow (`.github/workflows/build-windows.yml`)
+builds `salah.exe` automatically on every push to `windows/` or
+`salah_app/` (uploaded as an Actions artifact — requires a GitHub
+login to grab).
+
+For a link anyone can click with no login, push a version tag instead:
+
+```bash
+git tag v1.0.0
+git push --tags
+```
+
+That triggers the same build, then attaches `salah.exe` directly to a
+GitHub Release on your repo — the download link looks like:
+`github.com/zadwen/salah-app/releases/latest`, and works for anyone,
+signed in or not. Bump the tag (`v1.0.1`, `v1.1.0`, ...) each time you
+want to publish a new build.
+
+## Autostart on login
+
+Turn on **Settings → Run when Windows starts**. This adds a per-user
+registry entry (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`)
+pointing at the exe (or `pythonw main.py` if running from source) —
+no admin rights required, and it's removed the moment you flip the
+toggle off. When launched this way, the app starts minimized to the
+tray instead of opening the window every login.
+
+Alternative (equivalent, no toggle needed): press `Win+R`, type
+`shell:startup`, and drop a shortcut to `salah.exe` in the folder that
+opens.
 
 ## Notification sound
 
-Drop a short `.wav` file at
-`windows/salah_win/resources/sounds/adhan_beep.wav`, or pick any
-`.wav`/`.mp3`/`.ogg` file via **Settings → Sound → Choose Sound File**.
-`.wav` needs no extra dependency (uses the stdlib `winsound` module);
-`.mp3`/`.ogg` need the optional `playsound` package from
-requirements.txt.
+Drop a short `.wav`, `.mp3`, or `.ogg` file at
+`windows/salah_win/resources/sounds/adhan_beep.wav`, or pick one via
+**Settings → Sound → Choose Sound File**. Playback goes through
+`pygame.mixer`, which — unlike a fire-and-forget player — can actually
+be stopped mid-playback: hitting Mute or closing a notification banner
+cuts the sound off immediately instead of letting it run to the end
+in the background.
 
 ## Autostart on login (optional)
 
 Press `Win+R`, type `shell:startup`, and drop a shortcut to `salah.exe`
 (or to `python windows/main.py` if running from source) in the folder
 that opens.
+
+(Or just use **Settings → Run when Windows starts** inside the app — see above.)
 
 ## Uninstalling
 

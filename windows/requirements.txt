@@ -5,9 +5,11 @@
 
 Pillow>=10.0          # tray/app icon generation
 pystray>=0.19          # system tray icon + menu
+pygame>=2.5.0          # notification sound playback (wav/mp3/ogg) with a real stop() --
+                       # needed so Mute/closing a notification can actually cut off sound
+                       # already in progress, not just block future sounds.
 
-# Optional, best-effort only -- the app works fine without either:
+# Optional, best-effort only -- the app works fine without it:
 plyer>=2.1              # bonus native Windows toast (falls back silently if missing)
-playsound>=1.3.0        # lets "Choose Sound File" accept .mp3/.ogg, not just .wav
 
 pyinstaller>=6.0        # only needed to build the standalone .exe yourself

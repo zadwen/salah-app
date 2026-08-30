@@ -7,13 +7,14 @@ previously there was no field for this at all, which is why prayer
 times looked "stuck".
 """
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 
 from salah_app.constants import CALCULATION_METHODS, PRAYER_ORDER
 from salah_app.i18n import t
 
 from . import theme
 from .widgets import PillButton, ToggleSwitch
+from . import autostart
 
 
 class SettingsWindow(tk.Toplevel):
@@ -80,6 +81,17 @@ class SettingsWindow(tk.Toplevel):
     def _build_body(self, lang):
         cfg = self.cfg
         pal = self.pal
+
+        # Startup
+        self._section(t("run_at_startup", lang))
+        row = self._row()
+        tk.Label(row, text=t("run_at_startup", lang), bg=pal["bg"], fg=pal["text"],
+                  font=theme.F_BODY, anchor="w").pack(side="left")
+        self.startup_toggle = ToggleSwitch(row, initial=autostart.is_enabled(),
+                                           dark_mode=self.dark_mode, bg=pal["bg"])
+        self.startup_toggle.pack(side="right")
+        tk.Label(self.body, text=t("run_at_startup_hint", lang), bg=pal["bg"], fg=pal["text_dim"],
+                  font=theme.F_SMALL, wraplength=420, justify="left", anchor="w").pack(fill="x", pady=(2, 0))
 
         # Language
         self._section(t("language", lang))
@@ -188,6 +200,9 @@ class SettingsWindow(tk.Toplevel):
         import os
         return os.path.basename(self.sound_file) if self.sound_file else "(default beep)"
 
+    def _flash_error(self, msg):
+        messagebox.showwarning(t("settings_title", self.cfg.get("language", "en")), msg, parent=self)
+
     def _on_auto_toggled(self, auto_active):
         state = "disabled" if auto_active else "normal"
         for entry in (self.lat_entry, self.lon_entry, self.city_entry, self.country_entry):
@@ -204,6 +219,11 @@ class SettingsWindow(tk.Toplevel):
 
     def _save(self):
         cfg = dict(self.cfg)
+
+        startup_ok = autostart.set_enabled(self.startup_toggle.get())
+        if not startup_ok:
+            self._flash_error(t("startup_failed", cfg.get("language", "en")))
+
         cfg["language"] = self.lang_var.get()
         cfg["method"] = int(self.method_var.get())
 
